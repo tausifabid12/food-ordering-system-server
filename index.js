@@ -173,9 +173,32 @@ app.get("/allRestaurants", async (req, res) => {
     });
   }
 });
+//finding single restaurant
+app.get("/allRestaurants/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+
+    const result = await Restaurants.findOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "restaurant data",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
 
 //approving restaurant
-app.post("/allRestaurants/:id", async (req, res) => {
+app.patch("/allRestaurants/:id", async (req, res) => {
   try {
     const info = req.body;
     const { id } = req.params;
@@ -267,7 +290,7 @@ app.get("/allDeliveryMan", async (req, res) => {
 });
 
 //approving restaurant
-app.post("/allDeliveryMan/:id", async (req, res) => {
+app.put("/allDeliveryMan/:id", async (req, res) => {
   try {
     const info = req.body;
     const { id } = req.params;
