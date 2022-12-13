@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -151,7 +151,9 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// restaurant apis
+//* restaurant apis
+
+//getting all restaurant
 app.get("/allRestaurants", async (req, res) => {
   try {
     const query = {};
@@ -172,6 +174,35 @@ app.get("/allRestaurants", async (req, res) => {
   }
 });
 
+//approving restaurant
+app.post("/allRestaurants/:id", async (req, res) => {
+  try {
+    const info = req.body;
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: info,
+    };
+    const result = await Restaurants.updateOne(filter, updateDoc, options);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "restaurant approved",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+//adding restaurant
 app.post("/addRestaurant", async (req, res) => {
   try {
     const restaurantInfo = req.body;
@@ -191,7 +222,78 @@ app.post("/addRestaurant", async (req, res) => {
   }
 });
 
+//deleting restaurant
+app.delete("/allRestaurants/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+    const result = await Restaurants.deleteOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "restaurant removed",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
 //delivery man apis
+app.get("/allDeliveryMan", async (req, res) => {
+  try {
+    const query = {};
+    const deliveryMan = await DeliveryMan.find(query).toArray();
+
+    res.send({
+      status: true,
+      data: deliveryMan,
+      message: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+//approving restaurant
+app.post("/allDeliveryMan/:id", async (req, res) => {
+  try {
+    const info = req.body;
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: info,
+    };
+    const result = await DeliveryMan.updateOne(filter, updateDoc, options);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "DeliveryMan approved",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
 app.post("/addDeliveryMan", async (req, res) => {
   try {
     const deliveryManInfo = req.body;
@@ -200,6 +302,28 @@ app.post("/addDeliveryMan", async (req, res) => {
       status: true,
       data: result,
       message: "data inserted",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+//deleting DeliveryMan
+app.delete("/allDeliveryMan/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+    const result = await DeliveryMan.deleteOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "DeliveryMan removed",
     });
   } catch (error) {
     console.log(error);
