@@ -92,6 +92,29 @@ app.get("/allProduct", async (req, res) => {
   }
 });
 
+// getting restaurant specific products
+app.get("/myProducts", async (req, res) => {
+  try {
+    const email = req.query.email;
+
+    const filter = { email: email };
+
+    const products = await Products.find(filter).toArray();
+    res.send({
+      status: true,
+      data: products,
+      message: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
 app.post("/allProduct", async (req, res) => {
   try {
     const productInfo = req.body;
@@ -113,6 +136,7 @@ app.post("/allProduct", async (req, res) => {
 
 //* user apis
 
+// getting all user
 app.get("/users", async (req, res) => {
   try {
     const query = {};
@@ -132,6 +156,28 @@ app.get("/users", async (req, res) => {
   }
 });
 
+//getting single user info
+app.get("/users/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const query = { email: email };
+    const user = await Users.findOne(query);
+    res.send({
+      status: true,
+      data: user,
+      message: "single user",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+// creating user
 app.post("/users", async (req, res) => {
   try {
     const userInfo = req.body;
@@ -180,6 +226,27 @@ app.get("/allRestaurants/:id", async (req, res) => {
 
     const filter = { _id: ObjectId(id) };
 
+    const result = await Restaurants.findOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "restaurant data",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+//finding single restaurant using email
+app.get("/restaurantInfo", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const filter = { email: email };
     const result = await Restaurants.findOne(filter);
 
     res.send({
