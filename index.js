@@ -579,6 +579,31 @@ app.delete("/allDeliveryMan/:id", async (req, res) => {
 });
 
 //* orders api
+//getting restaurant orders
+app.get("/allOrders", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const AllOrdersInfo = await Orders.find({}).toArray();
+    const result = AllOrdersInfo[0].orderProductsInfo.filter(
+      (p) => p?.restaurantEmail === email
+    );
+
+    res.send({
+      status: true,
+      data: result,
+      message: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+// posting orders
 app.post("/addOrder", async (req, res) => {
   try {
     const orderInfo = req.body;
