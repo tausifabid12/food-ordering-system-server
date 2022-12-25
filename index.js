@@ -37,6 +37,8 @@ const Restaurants = client.db("FoodDeleverySystem").collection("Restaurants");
 const Products = client.db("FoodDeleverySystem").collection("Products");
 const Users = client.db("FoodDeleverySystem").collection("Users");
 const DeliveryMan = client.db("FoodDeleverySystem").collection("DeliveryMan");
+const Cart = client.db("FoodDeleverySystem").collection("Cart");
+const Orders = client.db("FoodDeleverySystem").collection("Orders");
 // const Restaurants = client.db("FoodDeleverySystem").collection("Restaurants");
 
 //****************** Apis **************************/
@@ -92,12 +94,55 @@ app.get("/allProduct", async (req, res) => {
   }
 });
 
+// separate categories products
+app.get("/catProducts/:catName", async (req, res) => {
+  try {
+    const { catName } = req.params;
+    const query = { category: catName };
+    const products = await Products.find(query).toArray();
+
+    res.send({
+      status: true,
+      data: products,
+      message: catName,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: req.params.catName,
+    });
+  }
+});
+
 // getting restaurant specific products
 app.get("/myProducts", async (req, res) => {
   try {
     const email = req.query.email;
 
     const filter = { email: email };
+
+    const products = await Products.find(filter).toArray();
+    res.send({
+      status: true,
+      data: products,
+      message: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+// getting top rated products
+app.get("/topRatedProducts", async (req, res) => {
+  try {
+    const filter = { rating: { $gt: 4 } };
 
     const products = await Products.find(filter).toArray();
     res.send({
@@ -123,6 +168,114 @@ app.post("/allProduct", async (req, res) => {
       status: true,
       data: result,
       message: "product added",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+// deleting products
+app.delete("/products/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = { _id: ObjectId(id) };
+    const result = await Products.deleteOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "Products removed",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+//* cart api
+app.get("/cart", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const query = { email: email };
+    const cartProducts = await Cart.find(query).toArray();
+
+    res.send({
+      status: true,
+      data: cartProducts,
+      message: "",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+app.post("/cart", async (req, res) => {
+  try {
+    const cartInfo = req.body;
+    const result = await Cart.insertOne(cartInfo);
+    res.send({
+      status: true,
+      data: result,
+      message: "added to cart",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+app.delete("/cart/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const filter = { productId: id };
+    const result = await Cart.deleteOne(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "Order removed",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+app.delete("/clearCart/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const filter = { email: email };
+    const result = await Cart.deleteMany(filter);
+
+    res.send({
+      status: true,
+      data: result,
+      message: "Order removed",
     });
   } catch (error) {
     console.log(error);
@@ -386,8 +539,8 @@ app.put("/allDeliveryMan/:id", async (req, res) => {
 
 app.post("/addDeliveryMan", async (req, res) => {
   try {
-    const deliveryManInfo = req.body;
-    const result = await DeliveryMan.insertOne(deliveryManInfo);
+    const orderInfo = req.body;
+    const result = await DeliveryMan.insertOne(orderInfo);
     res.send({
       status: true,
       data: result,
@@ -414,6 +567,26 @@ app.delete("/allDeliveryMan/:id", async (req, res) => {
       status: true,
       data: result,
       message: "DeliveryMan removed",
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: false,
+      data: [],
+      message: "",
+    });
+  }
+});
+
+//* orders api
+app.post("/addOrder", async (req, res) => {
+  try {
+    const orderInfo = req.body;
+    const result = await Orders.insertOne(orderInfo);
+    res.send({
+      status: true,
+      data: result,
+      message: "data inserted",
     });
   } catch (error) {
     console.log(error);
